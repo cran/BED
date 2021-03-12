@@ -1,4 +1,4 @@
-a32f5d4a4e19b790adefe3ccacb98cc8 *DESCRIPTION
+4ff198d1c7b5a9cb6227fe5a6f4f8fe1 *DESCRIPTION
 bce6408b480bc32fcd42c0996b382b14 *NAMESPACE
 d90252013aae8655a8ffa984523632a5 *R/BED.R
 9639d292670d875dbff50ed79298474d *R/BEIDList.R
@@ -15,12 +15,12 @@ c528514826561875d6802c5f6a0e3452 *R/bedImport.R
 11d50145f43754d594a5615343b86a51 *R/clearBedCache.R
 d6ff38cc516dca404f93481ce93f6df8 *R/compareBedInstances.R
 f1829ff87e10e88edc645d9610bb527b *R/convBeIdLists.R
-aa8dcd0886aa495a89a6c96f547d4ab0 *R/convBeIds.R
+2b9b2be5999967a27822c161c9169d6f *R/convBeIds.R
 ffc0984ef220c2e913354c274091484f *R/convDfBeIds.R
 2c9273ba4c52c268a645c6296335cbc7 *R/dumpEnsCore.R
 cda82a57eb49ff9b9c8239102a6d1001 *R/dumpNcbiDb.R
 b026ecfcccdeaa62987f6212a0df6fd1 *R/dumpNcbiTax.R
-9d001e85de5ad4ef0d9d22656687aaea *R/dumpUniprotDb.R
+6cb32b559c934349bbd00a94afac5fe0 *R/dumpUniprotDb.R
 6fad978324038b624598bca8f7571487 *R/exploreBe.R
 e68d72d0d3e4882d6fdbf9b9f92c7b1e *R/exploreConvPath.R
 e26eeb882e8fa3785dc3ed3ad43ff1ed *R/findBe.R
@@ -31,7 +31,7 @@ d7f433f56cb288a1dc0619b260e41fc4 *R/genBePath.R
 e1ae99552e98e29b74693bebb4eaa57d *R/geneIDsToAllScopes.R
 a2a3f794c5365d765ad41d0a9aa9dead *R/generics.R
 766096a615540d8fc997bef95c3aaa46 *R/getAllBeIdSources.R
-f32768824ebe5cd8a6ee95c351349e4b *R/getBeIdConvTable.R
+158bd6afb4b2f3ebfa10a52371e7a766 *R/getBeIdConvTable.R
 c011830690a22a4f5d2703b1a1af1dd9 *R/getBeIdDescription.R
 f21f36ba6aea7ce8e9ea25802fe5ff50 *R/getBeIdNameTable.R
 07cedffff350cbfa4c9d803de6dee825 *R/getBeIdNames.R
@@ -86,15 +86,15 @@ fe5d9adb7117a7ed51f89b2006fb3d94 *R/searchId.R
 e783fde230494886a98b6f2b3e4eb58f *R/setBedVersion.R
 e40cad9eba9605341279576b6138dd26 *R/showBedDataModel.R
 5bb5750919b2848d76b5bde0a2b1832e *R/zzz.R
-7903bce9d25f7324a79776bafe14d3ae *build/vignette.rds
+767772c72ad4c8e5420132970a0af562 *build/vignette.rds
 3b0a32900611281591b3b1754a5b24bd *inst/CITATION
 e8fe7193da39b426a1e37ec76f230d43 *inst/Documentation/BED-Model/BED-lucene.cql
 73e70120f9e9bb403d496f1e57bb3119 *inst/Documentation/BED-Model/BED-model.cql
 9fc132e72e482152abedc17449d5c8ce *inst/Documentation/BED-Model/BED.html
 3deb1202f39076a7861b5da718fd7e3f *inst/Documentation/BED-Model/BEType.cql
-f20d5e6aace14d42705d549a74a2b12d *inst/doc/BED.R
-4f6ff9a3926180c60b42280529346e35 *inst/doc/BED.Rmd
-a8d0db6c308b3e8fa232894ecad9e475 *inst/doc/BED.html
+7f1019d240a7ae901277e67bc7314717 *inst/doc/BED.R
+56b2b4e655508e5142eb18f726d12438 *inst/doc/BED.Rmd
+0fe0226a9c6630469f38ba9c99fa09d6 *inst/doc/BED.html
 047790282bfbf8520ba578391de70296 *inst/rstudio/addins.dcf
 9482cd06d1724de3949d886ea19072e9 *man/BED.Rd
 1223a7ee943c3660b3214bbdf6d36ca5 *man/BEIDList.Rd
@@ -113,7 +113,7 @@ f634499940d5d4db4b036b05c32d96b0 *man/cacheBedResult.Rd
 090f31964e251eb5a1f0e4843d1f7685 *man/compareBedInstances.Rd
 002f7d825c08b0cf879821d62ad7b98b *man/connectToBed.Rd
 df25e04e03616b0e076326444d0f9cd2 *man/convBeIdLists.Rd
-18fe03e9512e9f48497b3897253c6f08 *man/convBeIds.Rd
+4d2244b2c7ed1c94830fc47891533b9b *man/convBeIds.Rd
 d6456629d76128e9af83ecb167f1e217 *man/convDfBeIds.Rd
 41f1ab11998e730cfaa286f1397b0fca *man/dumpEnsCore.Rd
 0093481ad7c6d84300e18fd56cfe7a97 *man/dumpNcbiDb.Rd
@@ -132,7 +132,7 @@ c3ec0a169cbb476ee363a0222cfd341a *man/focusOnScope.Rd
 eea098af7b541910f8b21e73c41170e9 *man/genProbePath.Rd
 451ee668f8df1507dfdf41126d51fae0 *man/geneIDsToAllScopes.Rd
 6dba88b5a62026dc6ef8646daad82682 *man/getAllBeIdSources.Rd
-79d7e69d5c80dd6042a2d371bfcb9375 *man/getBeIdConvTable.Rd
+4673be4260e4c421582256eee2c38485 *man/getBeIdConvTable.Rd
 297f589903be818f4bf14d1e29a129b6 *man/getBeIdDescription.Rd
 e9c20af2528cdb7163108cbad8fb4186 *man/getBeIdNameTable.Rd
 f82197338926f8da63c95b2baad02010 *man/getBeIdNames.Rd
@@ -194,4 +194,4 @@ be5e0de9d13cc68cdb49dc119537fcf3 *man/searchBeid.Rd
 09df74fdfe5a95314e7fabbb262074b7 *man/searchId.Rd
 328215a8c07fd4d16f64353c0f83ed59 *man/setBedVersion.Rd
 0913f7c2c7276643413898f9c6d380a6 *man/showBedDataModel.Rd
-4f6ff9a3926180c60b42280529346e35 *vignettes/BED.Rmd
+56b2b4e655508e5142eb18f726d12438 *vignettes/BED.Rmd

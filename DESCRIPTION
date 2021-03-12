@@ -1,7 +1,7 @@
 Package: BED
 Type: Package
 Title: Biological Entity Dictionary (BED)
-Version: 1.4.3
+Version: 1.4.4
 Authors@R: c(
     person(
         "Patrice", "Godard",
@@ -42,13 +42,13 @@ LazyData: TRUE
 Depends: R (>= 3.6), neo2R (>= 2.1.0), visNetwork
 Imports: dplyr, readr, stringr, utils, shiny (>= 0.13), DT, htmltools,
         miniUI (>= 0.1.1), rstudioapi (>= 0.5)
-Suggests: knitr, rmarkdown, biomaRt, GEOquery
+Suggests: knitr, rmarkdown, biomaRt, GEOquery, base64enc, webshot
 Encoding: UTF-8
 VignetteBuilder: knitr
 RoxygenNote: 7.1.1
 NeedsCompilation: no
-Packaged: 2020-12-18 13:25:11 UTC; pgodard
+Packaged: 2021-03-11 08:43:53 UTC; pgodard
 Author: Patrice Godard [aut, cre, cph]
 Maintainer: Patrice Godard <patrice.godard@gmail.com>
 Repository: CRAN
-Date/Publication: 2021-01-05 09:10:05 UTC
+Date/Publication: 2021-03-12 08:50:03 UTC
