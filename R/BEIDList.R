@@ -62,6 +62,7 @@ BEIDList <- function(
    if(!".lname" %in% colnames(metadata)){
       metadata <- dplyr::mutate(metadata, .lname=rownames(!!metadata))
    }
+   metadata$.lname <- as.character(metadata$.lname)
    stopifnot(
       is.list(l),
       all(names(l) %in% metadata$.lname),
@@ -250,10 +251,13 @@ c.BEIDList <- function(...){
 #'
 #' @param x the BEIDList to be converted
 #' @param be the type of biological entity to focus on.
+#' If NULL (default), it's taken from `scope(x)`.
 #' Used if `is.null(scope)`
 #' @param source the source of BEID to focus on.
+#' If NULL (default), it's taken from `scope(x)`.
 #' Used if `is.null(scope)`
 #' @param organism the organism of BEID to focus on.
+#' If NULL (default), it's taken from `scope(x)`.
 #' Used if `is.null(scope)`
 #' @param scope a list with the following element:
 #' - **be**
@@ -273,12 +277,21 @@ c.BEIDList <- function(...){
 #' @export
 #'
 focusOnScope.BEIDList <- function(
-   x, be, source, organism,
+   x, be=NULL, source=NULL, organism=NULL,
    scope=NULL,
    force=FALSE,
    restricted=TRUE, prefFilter=TRUE,
    ...
 ){
+   if(is.null(be)){
+      be <- scope(x)$be
+   }
+   if(is.null(source)){
+      source <- scope(x)$source
+   }
+   if(is.null(organism)){
+      organism <- scope(x)$organism
+   }
    if(!is.null(scope)){
       be <- scope$be
       source <- scope$source
