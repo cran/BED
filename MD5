@@ -1,4 +1,4 @@
-078ab29ecf9a42701b2d9920b15f7a64 *DESCRIPTION
+2b8352fc5611d958df886e2edcd6f4a0 *DESCRIPTION
 b46e950a1c3186e6956d713d93b746d4 *NAMESPACE
 d90252013aae8655a8ffa984523632a5 *R/BED.R
 fb2895208fcab7af85f43273c738d3dd *R/BEIDList.R
@@ -13,7 +13,7 @@ c528514826561875d6802c5f6a0e3452 *R/bedImport.R
 1283ea88c0226b79cf94fcd9dc6aa770 *R/checkBedConn.R
 69dd97b3942e673242e49be7e07ac816 *R/cleanDubiousXRef.R
 11d50145f43754d594a5615343b86a51 *R/clearBedCache.R
-d6ff38cc516dca404f93481ce93f6df8 *R/compareBedInstances.R
+c52a0c62fa9ac8ece41bd8eb25a482d6 *R/compareBedInstances.R
 f1829ff87e10e88edc645d9610bb527b *R/convBeIdLists.R
 2b9b2be5999967a27822c161c9169d6f *R/convBeIds.R
 ffc0984ef220c2e913354c274091484f *R/convDfBeIds.R
@@ -85,17 +85,17 @@ e55cf21bd0e7791b6e70148821c846be *R/lsBedCache.R
 fe5d9adb7117a7ed51f89b2006fb3d94 *R/searchId.R
 e783fde230494886a98b6f2b3e4eb58f *R/setBedVersion.R
 e40cad9eba9605341279576b6138dd26 *R/showBedDataModel.R
-70c05340f3a986c18efa4a799260c7e9 *R/zzz.R
+a9340055d0550a9177ad9ceaf45c7335 *R/zzz.R
 96879564c736d8dda09dec758385fcb0 *build/vignette.rds
-3b0a32900611281591b3b1754a5b24bd *inst/CITATION
+bdd0c4e36060acbcceb9e7d38c9d3bba *inst/CITATION
 e8fe7193da39b426a1e37ec76f230d43 *inst/Documentation/BED-Model/BED-lucene.cql
 73e70120f9e9bb403d496f1e57bb3119 *inst/Documentation/BED-Model/BED-model.cql
 9fc132e72e482152abedc17449d5c8ce *inst/Documentation/BED-Model/BED.html
 d26d558fbda839b343c9b57faea7773e *inst/Documentation/BED-Model/BEType.cql
 1377bb7cacb2439bc9dc29a4579dfde1 *inst/doc/BED.R
 1f9f9f787d03ae2ab84b918dcfe15657 *inst/doc/BED.Rmd
-024247be872544d7985332acbdea09c7 *inst/doc/BED.html
-36353a28ca680f266fa5a7829e2578f6 *inst/pkgdown.yml
+4a2f6ff8a44d0a36cef4ead33c6fbf5c *inst/doc/BED.html
+a0517d627169336fba4b827a26b794e3 *inst/pkgdown.yml
 047790282bfbf8520ba578391de70296 *inst/rstudio/addins.dcf
 9482cd06d1724de3949d886ea19072e9 *man/BED.Rd
 1223a7ee943c3660b3214bbdf6d36ca5 *man/BEIDList.Rd
@@ -112,7 +112,7 @@ f634499940d5d4db4b036b05c32d96b0 *man/cacheBedResult.Rd
 2260c09767bbdbdd33e44cf572d84fe8 *man/cleanDubiousXRef.Rd
 6c16303878d67eaa4c0d45b7eff9951d *man/clearBedCache.Rd
 090f31964e251eb5a1f0e4843d1f7685 *man/compareBedInstances.Rd
-3c633dc526761991e68e651b62241683 *man/connectToBed.Rd
+09a6626667a8bbdf725c8c3dd51245ae *man/connectToBed.Rd
 df25e04e03616b0e076326444d0f9cd2 *man/convBeIdLists.Rd
 4d2244b2c7ed1c94830fc47891533b9b *man/convBeIds.Rd
 d6456629d76128e9af83ecb167f1e217 *man/convDfBeIds.Rd
