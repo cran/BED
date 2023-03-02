@@ -1,4 +1,4 @@
-2b8352fc5611d958df886e2edcd6f4a0 *DESCRIPTION
+2159c26f5b57114e778dd433368c7227 *DESCRIPTION
 b46e950a1c3186e6956d713d93b746d4 *NAMESPACE
 d90252013aae8655a8ffa984523632a5 *R/BED.R
 fb2895208fcab7af85f43273c738d3dd *R/BEIDList.R
@@ -85,17 +85,17 @@ e55cf21bd0e7791b6e70148821c846be *R/lsBedCache.R
 fe5d9adb7117a7ed51f89b2006fb3d94 *R/searchId.R
 e783fde230494886a98b6f2b3e4eb58f *R/setBedVersion.R
 e40cad9eba9605341279576b6138dd26 *R/showBedDataModel.R
-a9340055d0550a9177ad9ceaf45c7335 *R/zzz.R
+f30955ad3d5e3b075a1c987dd9f619e7 *R/zzz.R
 96879564c736d8dda09dec758385fcb0 *build/vignette.rds
 bdd0c4e36060acbcceb9e7d38c9d3bba *inst/CITATION
 e8fe7193da39b426a1e37ec76f230d43 *inst/Documentation/BED-Model/BED-lucene.cql
 73e70120f9e9bb403d496f1e57bb3119 *inst/Documentation/BED-Model/BED-model.cql
 9fc132e72e482152abedc17449d5c8ce *inst/Documentation/BED-Model/BED.html
 d26d558fbda839b343c9b57faea7773e *inst/Documentation/BED-Model/BEType.cql
-1377bb7cacb2439bc9dc29a4579dfde1 *inst/doc/BED.R
-1f9f9f787d03ae2ab84b918dcfe15657 *inst/doc/BED.Rmd
-4a2f6ff8a44d0a36cef4ead33c6fbf5c *inst/doc/BED.html
-a0517d627169336fba4b827a26b794e3 *inst/pkgdown.yml
+8f9e5cff8963de9582418f67ac4e257b *inst/doc/BED.R
+fdb480f87c56565c68a2c226bde761a5 *inst/doc/BED.Rmd
+c41029986c7edf32411c661c5819ff52 *inst/doc/BED.html
+fb731e34116e3abc31834ee86e2476b3 *inst/pkgdown.yml
 047790282bfbf8520ba578391de70296 *inst/rstudio/addins.dcf
 9482cd06d1724de3949d886ea19072e9 *man/BED.Rd
 1223a7ee943c3660b3214bbdf6d36ca5 *man/BEIDList.Rd
@@ -195,5 +195,5 @@ be5e0de9d13cc68cdb49dc119537fcf3 *man/searchBeid.Rd
 09df74fdfe5a95314e7fabbb262074b7 *man/searchId.Rd
 328215a8c07fd4d16f64353c0f83ed59 *man/setBedVersion.Rd
 0913f7c2c7276643413898f9c6d380a6 *man/showBedDataModel.Rd
-1f9f9f787d03ae2ab84b918dcfe15657 *vignettes/BED.Rmd
+fdb480f87c56565c68a2c226bde761a5 *vignettes/BED.Rmd
 099fdd3669331886344cc58bdc5dcb8f *vignettes/img/BED.png
