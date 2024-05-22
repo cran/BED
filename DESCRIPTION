@@ -1,7 +1,7 @@
 Package: BED
 Type: Package
 Title: Biological Entity Dictionary (BED)
-Version: 1.5.1
+Version: 1.5.2
 Authors@R: c(
     person(
         "Patrice", "Godard",
@@ -46,9 +46,9 @@ Encoding: UTF-8
 VignetteBuilder: knitr
 RoxygenNote: 7.3.1
 NeedsCompilation: no
-Packaged: 2024-04-28 06:53:32 UTC; pgodard
+Packaged: 2024-05-22 09:06:55 UTC; pgodard
 Author: Patrice Godard [aut, cre, cph]
     (<https://orcid.org/0000-0001-6257-9730>)
 Maintainer: Patrice Godard <patrice.godard@gmail.com>
 Repository: CRAN
-Date/Publication: 2024-04-28 07:10:04 UTC
+Date/Publication: 2024-05-22 10:10:02 UTC

@@ -1,4 +1,4 @@
-039761a3a07a188bac0bc578a27522da *DESCRIPTION
+beba4eea756405b0cd7c6fd552e87851 *DESCRIPTION
 b46e950a1c3186e6956d713d93b746d4 *NAMESPACE
 d90252013aae8655a8ffa984523632a5 *R/BED.R
 fb2895208fcab7af85f43273c738d3dd *R/BEIDList.R
@@ -21,8 +21,8 @@ ffc0984ef220c2e913354c274091484f *R/convDfBeIds.R
 ea653f2b7017aac5f2977bdf30fc0185 *R/dumpNcbiDb.R
 3d0a287280564f46ebeba9f2e196fe0f *R/dumpNcbiTax.R
 20753d88e09995b02b7154cf593f4537 *R/dumpUniprotDb.R
-b0c805ef2f466710d8d906c93736363b *R/exploreBe.R
-dfd5b2ed8079cc5d12647ad9e83dcd68 *R/exploreConvPath.R
+ab790a529fe50fe116117cd5b69d599d *R/exploreBe.R
+dbfa7af302ff4c7d4acc3b09e3b33ec8 *R/exploreConvPath.R
 e26eeb882e8fa3785dc3ed3ad43ff1ed *R/findBe.R
 6e4882526df183d902278996719c97d5 *R/findBeids.R
 dfc34ef0f0cec24cc212b6f8d9205a59 *R/firstCommonUpstreamBe.R
@@ -86,7 +86,7 @@ fe5d9adb7117a7ed51f89b2006fb3d94 *R/searchId.R
 e783fde230494886a98b6f2b3e4eb58f *R/setBedVersion.R
 e40cad9eba9605341279576b6138dd26 *R/showBedDataModel.R
 1d0f5483a947c8c544a83b4dd27bf2e0 *R/zzz.R
-25d9593fbebf579e576b63e93a586c30 *build/vignette.rds
+a370af27728783e99f2c6a22c9acab7d *build/vignette.rds
 bdd0c4e36060acbcceb9e7d38c9d3bba *inst/CITATION
 e8fe7193da39b426a1e37ec76f230d43 *inst/Documentation/BED-Model/BED-lucene-v3.cql
 4a7093f32ddfb58115147e2a07a8df37 *inst/Documentation/BED-Model/BED-lucene-v5.cql
@@ -97,8 +97,8 @@ c1af1d3eed7e5c728030303d689d2742 *inst/Documentation/BED-Model/BED.png
 d26d558fbda839b343c9b57faea7773e *inst/Documentation/BED-Model/BEType.cql
 f7ebe22e3b475ad28a0b28a95688de7e *inst/doc/BED.R
 15882a7355471d2c8ef3fc3666168a60 *inst/doc/BED.Rmd
-262f394119412a930f8c93ccf2993f56 *inst/doc/BED.html
-070cbb476fe1bb5adceed8913368587c *inst/pkgdown.yml
+e08be9752e1e551dcadf801aeaf38eac *inst/doc/BED.html
+f1181d1eb86c31f69964a3e90d669ac1 *inst/pkgdown.yml
 047790282bfbf8520ba578391de70296 *inst/rstudio/addins.dcf
 9482cd06d1724de3949d886ea19072e9 *man/BED.Rd
 1223a7ee943c3660b3214bbdf6d36ca5 *man/BEIDList.Rd
