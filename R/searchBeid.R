@@ -1,6 +1,7 @@
 #' Search a BEID
 #'
 #' @param x a character value to search
+#' @param maxHits maximum number of raw hits to return
 #' @param clean_id_search clean x to avoid error during ID search.
 #' Default: TRUE. Set it to false if you're sure of your lucene query.
 #' @param clean_name_search clean x to avoid error during ID search.
@@ -9,26 +10,31 @@
 #' @return NULL if there is not any match or
 #' a data.frame with the following columns:
 #'
-#' - **Value**: the matching term
-#' - **From**: the type of the matched term (e.g. BESymbol, GeneID...)
-#' - **BE**: the matching biological entity (BE)
-#' - **BEID**: the BE identifier
-#' - **Database**: the BEID reference database
-#' - **Preferred**: TRUE if the BEID is considered as a preferred identifier
-#' - **Symbol**: BEID canonical symbol
-#' - **Name**: BEID name
-#' - **Entity**: technical BE identifier
+#' - **value**: the matching term
+#' - **from**: the type of the matched term (e.g. BESymbol, GeneID...)
+#' - **be**: the matching biological entity (BE)
+#' - **beid**: the BE identifier
+#' - **source**: the BEID reference database
+#' - **preferred**: TRUE if the BEID is considered as a preferred identifier
+#' - **symbol**: BEID canonical symbol
+#' - **name**: BEID name
+#' - **entity**: technical BE identifier
 #' - **GeneID**: Corresponding gene identifier
-#' - **Gene_DB**: Gene ID database
-#' - **Preferred_gene**: TRUE if the GeneID is considered as a preferred identifier
+#' - **Gene_source**: Gene ID database
+#' - **preferred_gene**: TRUE if the GeneID is considered as a preferred identifier
 #' - **Gene_symbol**: Gene symbol
 #' - **Gene_name**: Gene name
 #' - **Gene_entity**: technical gene identifier
-#' - **Organism**: gene organism (scientific name)
+#' - **organism**: gene organism (scientific name)
+#' - **score**: score of the fuzzy search
+#' - **included**: is the search term fully included in the value
+#' - **exact**: is the value an exact match of the term
 #'
 #' @export
 #'
-searchBeid <- function(x, clean_id_search=TRUE, clean_name_search=TRUE){
+searchBeid <- function(
+   x, maxHits=75, clean_id_search=TRUE, clean_name_search=TRUE
+){
    stopifnot(
       is.character(x),
       length(x)==1,
@@ -108,7 +114,7 @@ searchBeid <- function(x, clean_id_search=TRUE, clean_name_search=TRUE){
       id=sprintf(
          paste(
             'CALL db.index.fulltext.queryNodes("beid", "%s")',
-            'YIELD node WITH DISTINCT node as mn limit 5',
+            'YIELD node, score WITH DISTINCT node as mn, score limit 5',
             'MATCH (mn)-[r:targets*0..1]-(beid:BEID)'
          ),
          vi
@@ -116,10 +122,10 @@ searchBeid <- function(x, clean_id_search=TRUE, clean_name_search=TRUE){
       name=sprintf(
          paste(
             'CALL db.index.fulltext.queryNodes("bename", "%s")',
-            'YIELD node WITH DISTINCT node as mn limit 50',
+            'YIELD node, score WITH DISTINCT node as mn, score limit %s',
             'MATCH (mn)-[r:is_named|is_known_as]-(beid:BEID)'
          ),
-         vn
+         vn, maxHits
       )
    )
    queries <- paste(
@@ -131,9 +137,9 @@ searchBeid <- function(x, clean_id_search=TRUE, clean_name_search=TRUE){
          '-[:belongs_to]->(:TaxID)',
          '-[:is_named {nameClass:"scientific name"}]->(o:OrganismName)',
          'OPTIONAL MATCH (beid)-[:is_known_as {canonical:true}]->(bes:BESymbol)',
-         'OPTIONAL MATCH (beid)-[:is_named]->(ben:BEName)',
+         'OPTIONAL MATCH (beid)-[bnr:is_named]->(ben:BEName)',
          'OPTIONAL MATCH (gid)-[:is_known_as {canonical:true}]->(ges:BESymbol)',
-         'OPTIONAL MATCH (gid)-[:is_named]->(gen:BEName)',
+         'OPTIONAL MATCH (gid)-[gnr:is_named]->(gen:BEName)',
          'RETURN DISTINCT',
          'mn.value as value,',
          'labels(mn) as from,',
@@ -141,11 +147,14 @@ searchBeid <- function(x, clean_id_search=TRUE, clean_name_search=TRUE){
          'beid.value as beid, beid.database as source,',
          'beid.preferred as preferred,',
          'bes.value as symbol, ben.value as name,',
+         'bnr.canonical as canonical_name,',
          'id(be) as entity,',
          'gid.value as GeneID, gid.database as Gene_source,',
          'gid.preferred as preferred_gene,',
          'ges.value as Gene_symbol, gen.value as Gene_name,',
-         'id(g) as Gene_entity, o.value as organism'
+         'gnr.canonical as canonical_Gene_name,',
+         'id(g) as Gene_entity, o.value as organism,',
+         'score'
       )
    )
    values <- bedCall(
@@ -161,7 +170,48 @@ searchBeid <- function(x, clean_id_search=TRUE, clean_name_search=TRUE){
    values <- dplyr::mutate(
       values,
       from=stringr::str_remove(.data$from, "BEID [|][|] "),
-      be=stringr::str_remove(.data$be, "BEID [|][|] ")
+      be=stringr::str_remove(.data$be, "BEID [|][|] "),
+      included=stringr::str_detect(
+         .data$value, pattern=regex(x, ignore_case = T)
+      ),
+      exact=stringr::str_detect(
+         .data$value, pattern=regex(x, ignore_case = T)
+      ) & nchar(.data$value) == nchar(x)
+   )
+   values <- dplyr::arrange(
+      values,
+      desc(.data$exact),
+      desc(.data$included),
+      desc(.data$score),
+      desc(.data$Gene_symbol == .data$value),
+      desc(.data$symbol == .data$value),
+      desc(.data$canonical_name),
+      desc(.data$canonical_Gene_name)
+   )
+   values <- dplyr::distinct(
+      values,
+      .data$value,
+      .data$from,
+      .data$be,
+      .data$beid,
+      .data$source,
+      .data$preferred,
+      .data$symbol,
+      # .data$name,
+      # .data$canonical_name,
+      .data$entity,
+      .data$GeneID,
+      .data$Gene_source,
+      .data$preferred_gene,
+      .data$Gene_symbol,
+      # .data$Gene_name,
+      # .data$canonical_Gene_name,
+      .data$Gene_entity,
+      .data$organism,
+      .data$score,
+      .data$included,
+      .data$exact,
+      .keep_all = TRUE
    )
    return(values)
 }

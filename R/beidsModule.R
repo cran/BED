@@ -6,7 +6,11 @@ moduleServer <- function(id, module){
    shiny::callModule(module, id)
 }
 
-highlightText <- function(text, value){
+highlightText <- function(
+   text, value,
+   style = "background-color:yellow; font-weight:bold;",
+   class = "bed-search"
+){
    value <- sub('^"', '', sub('"$', '', value))
    value <- gsub("[[:punct:]]", ".?", value)
    return(unlist(lapply(
@@ -21,7 +25,10 @@ highlightText <- function(text, value){
             for(i in 1:length(p)){
                toRet <- c(
                   toRet,
-                  '<mark style="background-color:yellow;font-weight:bold;">',
+                  sprintf(
+                     '<mark class="%s" style="%s">',
+                     class, style
+                  ),
                   substr(x, p[i], p[i]+attr(p, "match.length")[i]-1),
                   '</mark>',
                   substr(
@@ -52,12 +59,19 @@ highlightText <- function(text, value){
 #' @param id an identifier for the module instance
 #' @param toGene focus on gene entities (default=TRUE): matches from other
 #' BE are converted to genes.
+#' @param excludeTechID do not display BED technical BEIDs
 #' @param multiple allow multiple selections (default=FALSE)
 #' @param beOfInt if toGene==FALSE, BE to consider (default=NULL ==> all)
 #' @param selectBe if toGene==FALSE, display an interface for selecting BE
 #' @param orgOfInt organism to consider (default=NULL ==> all)
 #' @param selectOrg display an interface for selecting organisms
+#' @param oneColumn if TRUE the hits are displayed in only one column
+#' @param withId if FALSE and one column, the BEIDs are not shown
+#' @param maxHits maximum number of raw hits to return
+#' @param compact compact display (default: FALSE)
 #' @param tableHeight height of the result table (default: 150)
+#' @param highlightStyle style to apply to the text to highlight
+#' @param highlightClass class to apply to the text to highlight
 #'
 #' @return A reactive data.frame with the following columns:
 #' - **beid**: the BE identifier
@@ -103,12 +117,23 @@ highlightText <- function(text, value){
 #'
 beidsServer <- function(
    id,
-   toGene=TRUE,
+   toGene=TRUE, excludeTechID=FALSE,
    multiple=FALSE,
    beOfInt=NULL, selectBe=TRUE,
    orgOfInt=NULL, selectOrg=TRUE,
-   tableHeight=150
+   oneColumn = FALSE,
+   withId = FALSE,
+   maxHits = 75,
+   compact = FALSE,
+   tableHeight=150,
+   highlightStyle = "", # "background-color:yellow; font-weight:bold;",
+   highlightClass = "bed-search"
 ){
+   symbolStyle <- paste(
+      "text-decoration: underline;",
+      "font-weight:bold;",
+      "background-color:transparent"
+   )
    if(toGene){
       selectBe <- FALSE
       beOfInt <- c(listBe(), "Probe")
@@ -229,14 +254,31 @@ beidsServer <- function(
                value=0,
                style="notification",
                expr={
-                  m <- searchBeid(v)
+                  suppressMessages({
+                     m <- tryCatch(
+                        searchBeid(v, maxHits=maxHits),
+                        error = function(e) NULL
+                     )
+                  })
                }
             )
             if(is.null(m) || nrow(m)==0){
                m <- g <- NULL
             }else{
+               if(excludeTechID){
+                  m <- dplyr::filter(
+                     m,
+                     !stringr::str_detect(.data$source, "^BEDTech_")
+                  )
+               }
                .data <- NULL
                g <- dplyr::mutate(m, order=1:nrow(m))
+               if(excludeTechID){
+                  g <- dplyr::filter(
+                     g,
+                     !stringr::str_detect(.data$Gene_source, "^BEDTech_")
+                  )
+               }
                g <- dplyr::mutate(
                   g, url=getBeIdURL(.data$GeneID, .data$Gene_source)
                )
@@ -244,14 +286,15 @@ beidsServer <- function(
                g <- dplyr::summarise(
                   g,
                   order=min(.data$order),
-                  value=ifelse(
-                     length(unique(.data$value)) <= 2,
-                     paste(unique(.data$value), collapse=", "),
-                     paste(
-                        c(head(unique(.data$value), 2), "..."),
-                        collapse=", "
-                     )
-                  ),
+                  # value=ifelse(
+                  #    length(unique(.data$value)) <= 1,
+                  #    paste(unique(.data$value), collapse=", "),
+                  #    paste(
+                  #       c(head(unique(.data$value), 1), "..."),
+                  #       collapse=", "
+                  #    )
+                  # ),
+                  value = .data$value[1],
                   from=paste(unique(ifelse(
                      .data$from %in% c("BESymbol", "BEName"),
                      stringr::str_replace(
@@ -275,8 +318,8 @@ beidsServer <- function(
                         )
                      )
                   )), collapse=", "),
-                  symbol=paste(setdiff(.data$symbol, NA), collapse=", "),
-                  name=paste(setdiff(.data$name, NA), collapse=", "),
+                  symbol=paste(setdiff(.data$symbol, NA), collapse=" / "),
+                  name=paste(setdiff(.data$name, NA), collapse=" / "),
                   GeneIDs=paste(unique(sprintf(
                      '<a href="%s" target="_blank">%s</a>',
                      url,
@@ -287,14 +330,15 @@ beidsServer <- function(
                            .data$GeneID,
                            ifelse(.data$preferred_gene, "</strong></u>", "")
                         ),
-                        !!v
+                        !!v,
+                        style = highlightStyle, class = highlightClass
                      )
                   )[order(.data$preferred_gene, decreasing=T)]), collapse=","),
                   Gene_symbol=paste(
-                     setdiff(.data$Gene_symbol, NA), collapse=", "
+                     setdiff(.data$Gene_symbol, NA), collapse=" / "
                   ),
                   Gene_name=paste(
-                     setdiff(.data$Gene_name, NA), collapse=", "
+                     setdiff(.data$Gene_name, NA), collapse=" / "
                   )
                )
                g <- dplyr::arrange(g, .data$order)
@@ -359,41 +403,194 @@ beidsServer <- function(
             toShow <- dplyr::select(
                dplyr::mutate(
                   toShow,
-                  Match=highlightText(.data$match, !!v),
-                  From=highlightText(.data$from, !!v),
-                  Symbol=highlightText(.data$Gene_symbol, !!v),
-                  Name=highlightText(.data$Gene_name, !!v),
+                  Match=highlightText(
+                     .data$match, !!v,
+                     style = highlightStyle, class = highlightClass
+                  ),
+                  From=highlightText(
+                     .data$from, !!v,
+                     style = highlightStyle, class = highlightClass
+                  ),
+                  Symbol=highlightText(
+                     .data$Gene_symbol, !!v,
+                     style = highlightStyle, class = highlightClass
+                  ),
+                  Name=highlightText(
+                     .data$Gene_name, !!v,
+                     style = highlightStyle, class = highlightClass
+                  ),
                   Organism=as.factor(.data$organism)
                ),
                "Match", # "From",
                "Symbol", "Name", "Organism", "GeneIDs",
             )
+            if(oneColumn){
+               if(withId){
+                  toShow <- dplyr::mutate(
+                     toShow,
+                     Match = ifelse(
+                        stringr::str_detect(.data$Symbol, "</mark>") |
+                           stringr::str_detect(.data$Name, "</mark>") |
+                           stringr::str_detect(.data$GeneIDs, "</mark>"),
+                        "",
+                        .data$Match
+                     ),
+                     Symbol = paste0(
+                        sprintf('<mark style="%s">', symbolStyle),
+                        .data$Symbol, "</mark>"
+                     )
+                  )
+                  toShow <- dplyr::mutate(
+                     toShow,
+                     Match = paste(
+                        .data$Match, .data$Symbol, .data$Name, .data$GeneIDs,
+                        sep = " | "
+                     )
+                  )
+               }else{
+                  toShow <- dplyr::mutate(
+                     toShow,
+                     Match = ifelse(
+                        stringr::str_detect(.data$Symbol, "</mark>") |
+                           stringr::str_detect(.data$Name, "</mark>"),
+                        "",
+                        .data$Match
+                     ),
+                     Symbol = paste0(
+                        sprintf('<mark style="%s">', symbolStyle),
+                        .data$Symbol, "</mark>"
+                     )
+                  )
+                  toShow <- dplyr::mutate(
+                     toShow,
+                     Match = paste(
+                        .data$Match, .data$Symbol, .data$Name,
+                        sep = " | "
+                     )
+                  )
+               }
+               toShow <- dplyr::select(
+                  dplyr::mutate(
+                     toShow,
+                     Match = stringr::str_remove(
+                        stringr::str_replace_all(
+                           .data$Match,
+                           "( [|] )+", " | "
+                        ),
+                        "^ [|] "
+                     )
+                  ),
+                  "Match", "Organism"
+               )
+            }
          }else{
             toShow <- appState$fmatches
             shiny::req(toShow)
             toShow <- dplyr::select(
                dplyr::mutate(
                   toShow,
-                  Match=highlightText(.data$match, !!v),
-                  From=highlightText(.data$from, !!v),
-                  Symbol=highlightText(.data$symbol, !!v),
-                  Name=highlightText(.data$name, !!v),
+                  Match=highlightText(
+                     .data$match, !!v,
+                     style = highlightStyle, class = highlightClass
+                  ),
+                  From=highlightText(
+                     .data$from, !!v,
+                     style = highlightStyle, class = highlightClass
+                  ),
+                  Symbol=highlightText(
+                     .data$symbol, !!v,
+                     style = highlightStyle, class = highlightClass
+                  ),
+                  Name=highlightText(
+                     .data$name, !!v,
+                     style = highlightStyle, class = highlightClass
+                  ),
                   Organism=as.factor(.data$organism),
                   ID=sprintf(
                      '<a href="%s" target="_blank">%s</a>',
                      getBeIdURL(.data$beid, .data$source),
-                     highlightText(.data$beid, !!v)
+                     highlightText(
+                        .data$beid, !!v,
+                        style = highlightStyle, class = highlightClass
+                     )
                   )
                ),
                "Match", # "From",
                "BE"="be", "Symbol", "Name", "Organism", "ID",
                "Source"="source", "Preferred"="preferred"
             )
+            if(oneColumn){
+               if(withId){
+                  toShow <- dplyr::mutate(
+                     toShow,
+                     Match = ifelse(
+                        stringr::str_detect(.data$Symbol, "</mark>") |
+                           stringr::str_detect(.data$Name, "</mark>") |
+                           stringr::str_detect(.data$ID, "</mark>"),
+                        "",
+                        .data$Match
+                     ),
+                     Symbol = paste0(
+                        sprintf('<mark style="%s">', symbolStyle),
+                        .data$Symbol, "</mark>"
+                     )
+                  )
+                  toShow <- dplyr::mutate(
+                     toShow,
+                     Match = paste(
+                        .data$Match,
+                        .data$Symbol, .data$Name,
+                        .data$ID,
+                        sep = " | "
+                     )
+                  )
+               }else{
+                  toShow <- dplyr::mutate(
+                     toShow,
+                     Match = ifelse(
+                        stringr::str_detect(.data$Symbol, "</mark>") |
+                           stringr::str_detect(.data$Name, "</mark>"),
+                        "",
+                        .data$Match
+                     ),
+                     Symbol = paste0(
+                        sprintf('<mark style="%s">', symbolStyle),
+                        .data$Symbol, "</mark>"
+                     )
+                  )
+                  toShow <- dplyr::mutate(
+                     toShow,
+                     Match = paste(
+                        .data$Match,
+                        .data$Symbol, .data$Name,
+                        sep = " | "
+                     )
+                  )
+               }
+               toShow <- dplyr::mutate(
+                  toShow,
+                  Match = stringr::str_remove(
+                     stringr::str_replace_all(
+                        .data$Match,
+                        "( [|] )+", " | "
+                     ),
+                     "^ [|] "
+                  )
+               )
+               toShow <- dplyr::select(
+                  toShow,
+                  "Match", "BE", "Organism", "Source", "Preferred"
+               )
+            }
+         }
+         if(!selectOrg && length(orgOfInt) == 1){
+            toShow <- dplyr::select(toShow, -"Organism")
          }
          toShow <- DT::datatable(
             toShow,
             rownames=FALSE,
             escape=FALSE,
+            class = ifelse(compact, "display compact", "display"),
             selection=list(
                mode=ifelse(multiple, "multiple",  "single"),
                target="row"
