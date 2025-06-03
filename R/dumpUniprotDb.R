@@ -11,6 +11,8 @@
 #' @param ftp location of the ftp site
 #' @param env the R environment in which to load the tables when built
 #'
+#' @useDynLib BED, .registration = TRUE
+#'
 dumpUniprotDb <- function(
     taxOfInt,
     divOfInt,
@@ -82,7 +84,9 @@ dumpUniprotDb <- function(
         con <- file(f, "r")
         by <- 50000000
         fuf <- character()
-        tuids <- tdeprecated <- trsCref <- tensCref <- c()
+        tuids <- tdeprecated <- trsCref <- tensCref <-
+           tsymbols <- tnames <-
+           c()
         iteration <- 0
         while(TRUE){
             iteration <- iteration+1
@@ -111,7 +115,7 @@ dumpUniprotDb <- function(
                 uf
             )
             tokeep <- sort(which(
-                uf.field %in% c("ID", "AC", "DE", "OX", "DR") |
+                uf.field %in% c("ID", "AC", "DE", "GN", "OX", "DR") |
                     uf=="//"
             ))
             uf.val <- uf.val[tokeep]
@@ -145,6 +149,52 @@ dumpUniprotDb <- function(
             )
             status <-  sub("[;] +.*$", "", sub("^[[:alnum:]_]* +", "", symbols))
             symbols <- sub(" +.*$", "", symbols)
+            canSymbols <- sub("_.*", "", symbols)
+            symbols <- rbind(
+               data.frame(
+                  id = names(symbols),
+                  symbol = as.character(canSymbols),
+                  canonical = TRUE
+               ),
+               data.frame(
+                  id = names(symbols),
+                  symbol = as.character(symbols),
+                  canonical = FALSE
+               )
+            )
+
+            toAdd <- lapply(
+               spluf,
+               function(x){
+                  value <- paste(
+                     x$val[which(x$field=="GN")],
+                     collapse = " "
+                  )
+                  if(is.na(value) || value == ""){
+                     return(character())
+                  }
+                  toRet <- .extract_u_gn_r(value)
+                  if(length(toRet)==0){
+                     return(character())
+                  }
+                  return(toRet)
+               }
+            )
+            toAdd <- dplyr::select(
+               dplyr::mutate_all(
+                  stack(toAdd),
+                  as.character
+               ),
+               "id" = "ind", "symbol" = "values"
+            )
+            toAdd$canonical <- FALSE
+
+            symbols <- rbind(symbols, toAdd)
+            symbols <- dplyr::select(dplyr::distinct(
+               symbols,
+               symbols$id, symbols$symbol,
+               .keep_all = TRUE
+            ), "id", "symbol", "canonical")
             ##
             tax <- unlist(lapply(
                 spluf,
@@ -161,21 +211,43 @@ dumpUniprotDb <- function(
                 stop("Incoherence in NCBI tax")
             }
             ##
-            recNames <- unlist(lapply(
-                spluf,
-                function(x){
-                    toRet <- x$val[which(x$field=="DE")][1]
-                    toRet <- sub(";.*$", "", sub("^.*Full=", "", toRet))
-                    return(toRet)
-                }
-            ))
-            recNames <- sub(" *[{].*$", "", recNames)
+            recNames <- lapply(
+               spluf,
+               function(x){
+                  values <- x$val[which(x$field=="DE")]
+                  toRet <- .extract_u_de_r(values)
+                  return(toRet)
+               }
+            )
+            canRecNames <- dplyr::select(
+               dplyr::mutate_all(
+                  stack(
+                     lapply(recNames, function(x) x[1])
+                  ),
+                  as.character
+               ),
+               "id" = "ind", "name" = "values"
+            )
+            canRecNames$canonical = TRUE
+            otherRecNames <- dplyr::select(
+               dplyr::mutate_all(
+                  stack(
+                     lapply(recNames, function(x) x[-1])
+                  ),
+                  as.character
+               ),
+               "id" = "ind", "name" = "values"
+            )
+            otherRecNames$canonical = FALSE
+            recNames <- rbind(canRecNames, otherRecNames)
             ##
             uids <- data.frame(
                 ID=ids,
-                symbol=symbols[ids],
+                symbol=canSymbols[ids],
                 status=status[ids],
-                name=recNames[ids],
+                name=canRecNames[
+                   match(ids, canRecNames$id), "name", drop = TRUE
+                ],
                 tax=tax[ids],
                 stringsAsFactors=FALSE
             )
@@ -228,19 +300,23 @@ dumpUniprotDb <- function(
             tdeprecated <- rbind(tdeprecated, deprecated)
             trsCref <- rbind(trsCref, rsCref)
             tensCref <- rbind(tensCref, ensCref)
+            tsymbols <- rbind(tsymbols, symbols)
+            tnames <- rbind(tnames, recNames)
         }
         return(list(
             uids=tuids,
             deprecated=tdeprecated,
             rsCref=trsCref,
-            ensCref=tensCref
+            ensCref=tensCref,
+            symbols = tsymbols,
+            names = tnames
         ))
     }
     pf <- sprintf("uniprotIds-%s.rda", divOfInt)
     lpf <- file.path(dumpDir, pf)
     if(!file.exists(lpf)){
         ## * Reading and original parsing ----
-        uids <- deprecated <- rsCref <- ensCref <- c()
+        uids <- deprecated <- rsCref <- ensCref <- symbols <- names <- c()
         for(f in toDl){
             message(f)
             toAdd <- parse_unigz(file.path(dumpDir, f))
@@ -248,6 +324,8 @@ dumpUniprotDb <- function(
             deprecated <- rbind(deprecated, toAdd$deprecated)
             rsCref <- rbind(rsCref, toAdd$rsCref)
             ensCref <- rbind(ensCref, toAdd$ensCref)
+            symbols <- rbind(symbols, toAdd$symbols)
+            names <- rbind(names, toAdd$names)
         }
         ## * Save parsed data ----
         save(
@@ -255,7 +333,9 @@ dumpUniprotDb <- function(
                 "uids",
                 "deprecated",
                 "rsCref",
-                "ensCref"
+                "ensCref",
+                "symbols",
+                "names"
             ),
             file=lpf
         )
@@ -264,4 +344,15 @@ dumpUniprotDb <- function(
     load(lpf, envir=env)
     load(file.path(dumpDir, "dumpRelease.rda"), envir=env)
 
+}
+
+
+.extract_u_de_r <- function(values) {
+   if (!is.character(values)) stop("values must be a character vector")
+   .Call("extract_u_de", values)
+}
+
+.extract_u_gn_r <- function(value){
+   if (!is.character(value)) stop("value must be a character")
+   .Call("extract_u_gn", value)
 }

@@ -14,6 +14,10 @@ beidsServer(
   selectBe = TRUE,
   orgOfInt = NULL,
   selectOrg = TRUE,
+  groupBySymbol = FALSE,
+  searchLabel = "Search a gene",
+  matchColname = "Match",
+  selectFirst = FALSE,
   oneColumn = FALSE,
   withId = FALSE,
   maxHits = 75,
@@ -35,13 +39,22 @@ BE are converted to genes.}
 
 \item{multiple}{allow multiple selections (default=FALSE)}
 
-\item{beOfInt}{if toGene==FALSE, BE to consider (default=NULL ==> all)}
+\item{beOfInt}{if toGene == FALSE, BE to consider (default=NULL ==> all)}
 
-\item{selectBe}{if toGene==FALSE, display an interface for selecting BE}
+\item{selectBe}{if toGene == FALSE, display an interface for selecting BE}
 
 \item{orgOfInt}{organism to consider (default=NULL ==> all)}
 
 \item{selectOrg}{display an interface for selecting organisms}
+
+\item{groupBySymbol}{if TRUE also use gene symbols to aggregate results with
+more granularity (taken into account only when toGene == TRUE)}
+
+\item{searchLabel}{display label for the search field or NULL for no label}
+
+\item{matchColname}{display name of the match column}
+
+\item{selectFirst}{if TRUE the first row is selected by default}
 
 \item{oneColumn}{if TRUE the hits are displayed in only one column}
 
