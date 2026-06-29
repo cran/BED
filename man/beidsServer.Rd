@@ -21,10 +21,14 @@ beidsServer(
   oneColumn = FALSE,
   withId = FALSE,
   maxHits = 75,
+  clean_id_search = TRUE,
+  clean_name_search = TRUE,
+  fuzzy = TRUE,
   compact = FALSE,
   tableHeight = 150,
   highlightStyle = "",
-  highlightClass = "bed-search"
+  highlightClass = "bed-search",
+  inputUpdateOn = c("change", "blur")
 )
 
 beidsUI(id)
@@ -62,6 +66,15 @@ more granularity (taken into account only when toGene == TRUE)}
 
 \item{maxHits}{maximum number of raw hits to return}
 
+\item{clean_id_search}{clean x to avoid error during ID search.
+Default: TRUE. Set it to false if you're sure of your lucene query.}
+
+\item{clean_name_search}{clean x to avoid error during ID search.
+Default: TRUE. Set it to false if you're sure of your lucene query.}
+
+\item{fuzzy}{if TRUE (default) a fuzzy search is applied on names and
+symbols.}
+
 \item{compact}{compact display (default: FALSE)}
 
 \item{tableHeight}{height of the result table (default: 150)}
@@ -69,6 +82,12 @@ more granularity (taken into account only when toGene == TRUE)}
 \item{highlightStyle}{style to apply to the text to highlight}
 
 \item{highlightClass}{class to apply to the text to highlight}
+
+\item{inputUpdateOn}{A character vector specifying when the input should be
+updated. Options are "change" (default) and "blur".
+Use "change" to update the input immediately whenever the value changes.
+Use "blur"to delay the input update until the input loses focus
+(the user moves away from the input), or when Enter is pressed.}
 }
 \value{
 A reactive data.frame with the following columns:
@@ -87,7 +106,7 @@ Shiny module for searching BEIDs
 }
 \section{Functions}{
 \itemize{
-\item \code{beidsUI()}: 
+\item \code{beidsUI()}: UI part of the BED identifiers shiny module
 
 }}
 \examples{

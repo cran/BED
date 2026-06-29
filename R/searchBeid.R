@@ -6,6 +6,8 @@
 #' Default: TRUE. Set it to false if you're sure of your lucene query.
 #' @param clean_name_search clean x to avoid error during ID search.
 #' Default: TRUE. Set it to false if you're sure of your lucene query.
+#' @param fuzzy if TRUE (default) a fuzzy search is applied on names and
+#' symbols.
 #'
 #' @return NULL if there is not any match or
 #' a data.frame with the following columns:
@@ -33,14 +35,14 @@
 #' @export
 #'
 searchBeid <- function(
-   x, maxHits=75, clean_id_search=TRUE, clean_name_search=TRUE
+   x, maxHits=75, clean_id_search=TRUE, clean_name_search=TRUE, fuzzy = TRUE
 ){
    stopifnot(
       is.character(x),
       length(x)==1,
       !is.na(x)
    )
-   clean_search_name <- function(x){
+   clean_search_name <- function(x, fuzzy){
       if(nchar(stringr::str_remove_all(x, '[^"]')) %% 2 != 0){
          x <- stringr::str_remove_all(x, '"')
       }
@@ -49,11 +51,11 @@ searchBeid <- function(
       x <- stringr::str_replace_all(x, stringr::fixed('^'), '\\\\^')
       x <- stringr::str_remove_all(x, '~')
       x <- stringr::str_remove(x, ' *$')
-      x <- stringr::str_replace_all(x, ' +', '~ ')
       while(
          substr(x, nchar(x), nchar(x)) %in%
          c(
-            "+", "-",  "&", "|",  "!", "(" , ")",
+            "+", "-",
+            "&", "|",  "!", "(" , ")",
             "{", "}", "[", "]", "?", ":", "/",
             "~", " "
          )
@@ -82,7 +84,14 @@ searchBeid <- function(
       x <- clean_brack(x, "{", "}")
       x <- clean_brack(x, "\\[", "\\]")
       if(nchar(x)>0){
-         x <- paste0(x, "~")
+         if(fuzzy){
+            x <- stringr::str_replace_all(x, ' +', '~ ')
+            x <- paste0(x, "~")
+         }else{
+            if(!stringr::str_detect(x, "[[:blank:]-]")){
+               x <- paste0("*", x, "*")
+            }
+         }
       }
       return(x)
    }
@@ -97,8 +106,9 @@ searchBeid <- function(
       }
       return(x)
    }
+   vn <- vi <- x
    if(clean_id_search) vi <- clean_search_id(x)
-   if(clean_name_search) vn <- clean_search_name(x)
+   if(clean_name_search) vn <- clean_search_name(x, fuzzy = fuzzy)
    if(nchar(vi)==0 || nchar(vn)==0){
       return(NULL)
    }
@@ -114,7 +124,7 @@ searchBeid <- function(
       id=sprintf(
          paste(
             'CALL db.index.fulltext.queryNodes("beid", "%s")',
-            'YIELD node, score WITH DISTINCT node as mn, score limit 5',
+            'YIELD node, score WITH DISTINCT node as mn, score LIMIT 5',
             'MATCH (mn)-[r:targets*0..1]-(beid:BEID)'
          ),
          vi
@@ -122,7 +132,8 @@ searchBeid <- function(
       name=sprintf(
          paste(
             'CALL db.index.fulltext.queryNodes("bename", "%s")',
-            'YIELD node, score WITH DISTINCT node as mn, score limit %s',
+            'YIELD node, score WITH DISTINCT node as mn, score',
+            'ORDER BY score DESC, size(mn.value) ASC LIMIT %s',
             'MATCH (mn)-[r:is_named|is_known_as]-(beid:BEID)'
          ),
          vn, maxHits
@@ -172,10 +183,10 @@ searchBeid <- function(
       from=stringr::str_remove(.data$from, "BEID [|][|] "),
       be=stringr::str_remove(.data$be, "BEID [|][|] "),
       included=stringr::str_detect(
-         .data$value, pattern=regex(x, ignore_case = T)
+         .data$value, pattern=fixed(x, ignore_case = T)
       ),
       exact=stringr::str_detect(
-         .data$value, pattern=regex(x, ignore_case = T)
+         .data$value, pattern=fixed(x, ignore_case = T)
       ) & nchar(.data$value) == nchar(x)
    )
    values <- dplyr::arrange(
@@ -183,6 +194,7 @@ searchBeid <- function(
       desc(.data$exact),
       desc(.data$included),
       desc(.data$score),
+      nchar(.data$value),
       desc(.data$Gene_symbol == .data$value),
       desc(.data$symbol == .data$value),
       desc(.data$canonical_name),

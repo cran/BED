@@ -78,10 +78,21 @@ highlightText <- function(
 #' @param oneColumn if TRUE the hits are displayed in only one column
 #' @param withId if FALSE and one column, the BEIDs are not shown
 #' @param maxHits maximum number of raw hits to return
+#' @param clean_id_search clean x to avoid error during ID search.
+#' Default: TRUE. Set it to false if you're sure of your lucene query.
+#' @param clean_name_search clean x to avoid error during ID search.
+#' Default: TRUE. Set it to false if you're sure of your lucene query.
+#' @param fuzzy if TRUE (default) a fuzzy search is applied on names and
+#' symbols.
 #' @param compact compact display (default: FALSE)
 #' @param tableHeight height of the result table (default: 150)
 #' @param highlightStyle style to apply to the text to highlight
 #' @param highlightClass class to apply to the text to highlight
+#' @param inputUpdateOn A character vector specifying when the input should be
+#' updated. Options are "change" (default) and "blur".
+#' Use "change" to update the input immediately whenever the value changes.
+#' Use "blur"to delay the input update until the input loses focus
+#' (the user moves away from the input), or when Enter is pressed.
 #'
 #' @return A reactive data.frame with the following columns:
 #' - **beid**: the BE identifier
@@ -141,10 +152,14 @@ beidsServer <- function(
    oneColumn = FALSE,
    withId = FALSE,
    maxHits = 75,
+   clean_id_search=TRUE,
+   clean_name_search=TRUE,
+   fuzzy = TRUE,
    compact = FALSE,
    tableHeight=150,
    highlightStyle = "", # "background-color:yellow; font-weight:bold;",
-   highlightClass = "bed-search"
+   highlightClass = "bed-search",
+   inputUpdateOn = c("change", "blur")
 ){
    symbolStyle <- paste(
       "text-decoration: underline;",
@@ -179,7 +194,8 @@ beidsServer <- function(
                         label=searchLabel,
                         placeholder=
                            'e.g. snca, ENSG00000186868, "M-CSF receptor"',
-                        width="100%"
+                        width="100%",
+                        updateOn = inputUpdateOn
                      )
                   )$find("input")$addAttrs("autocomplete" = "off")$allTags()
                ),
@@ -276,7 +292,13 @@ beidsServer <- function(
                expr={
                   suppressMessages({
                      m <- tryCatch(
-                        searchBeid(v, maxHits=maxHits),
+                        searchBeid(
+                           v,
+                           maxHits=maxHits,
+                           clean_id_search=clean_id_search,
+                           clean_name_search=clean_name_search,
+                           fuzzy = fuzzy
+                        ),
                         error = function(e) NULL
                      )
                   })
@@ -732,7 +754,7 @@ beidsServer <- function(
 }
 
 ###############################################################################@
-#' @describeIn beidsServer
+#' @describeIn beidsServer UI part of the BED identifiers shiny module
 #'
 #' @importFrom shiny uiOutput NS
 #' @export
